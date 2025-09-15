@@ -4,6 +4,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import Dashboard from "./pages/Dashboard";
+import ExpenseForm from "./pages/ExpenseForm";
+import ApprovalFlow from "./pages/ApprovalFlow";
+import Header from "./components/Header";
+import Navigation from "./components/Navigation";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -14,11 +19,25 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <div className="min-h-screen bg-background">
+          <Header />
+          <div className="flex">
+            <Navigation />
+            <main className="flex-1">
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/new-expense" element={<ExpenseForm />} />
+                <Route path="/expenses" element={<ExpenseForm />} />
+                <Route path="/approvals" element={<ApprovalFlow />} />
+                <Route path="/expense-form" element={<ExpenseForm />} />
+                <Route path="/approval-flow" element={<ApprovalFlow />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
+          </div>
+        </div>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
