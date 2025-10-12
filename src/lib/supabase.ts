@@ -6,14 +6,22 @@ const supabaseAnonKey = 'hy9zihPdjpGugj6T'
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Database types
+export type AppRole = 'employee' | 'supervisor' | 'admin' | 'finance'
+
 export interface Profile {
   id: string
   email: string
   full_name: string
-  role: 'employee' | 'supervisor' | 'admin' | 'finance'
   department: string
   created_at: string
   updated_at: string
+}
+
+export interface UserRole {
+  id: string
+  user_id: string
+  role: AppRole
+  created_at: string
 }
 
 export interface Expense {

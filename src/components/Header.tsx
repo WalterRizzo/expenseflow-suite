@@ -23,7 +23,7 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Header = () => {
-  const { profile, signOut } = useAuth();
+  const { profile, userRole, signOut } = useAuth();
   const [notifications] = useState([
     {
       id: 1,
@@ -182,7 +182,7 @@ const Header = () => {
                   </p>
                   <div className="flex gap-2 mt-1">
                     <Badge variant="secondary" className="w-fit text-xs">
-                      {profile?.role && getRoleLabel(profile.role)}
+                      {userRole && getRoleLabel(userRole)}
                     </Badge>
                     <Badge variant="outline" className="w-fit text-xs">
                       {profile?.department}
