@@ -24,9 +24,9 @@ CREATE TABLE IF NOT EXISTS public.user_roles (
 );
 
 -- Create expenses table
-CREATE TABLE IF NOT EXISTS expenses (
+CREATE TABLE IF NOT EXISTS public.expenses (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   title TEXT NOT NULL,
   amount DECIMAL(10,2) NOT NULL CHECK (amount > 0),
   currency TEXT DEFAULT 'EUR',
@@ -44,10 +44,10 @@ CREATE TABLE IF NOT EXISTS expenses (
 );
 
 -- Create expense_approvals table for approval workflow
-CREATE TABLE IF NOT EXISTS expense_approvals (
+CREATE TABLE IF NOT EXISTS public.expense_approvals (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  expense_id UUID REFERENCES expenses(id) ON DELETE CASCADE,
-  approver_id UUID REFERENCES auth.users(id),
+  expense_id UUID REFERENCES public.expenses(id) ON DELETE CASCADE NOT NULL,
+  approver_id UUID REFERENCES auth.users(id) NOT NULL,
   level INTEGER NOT NULL DEFAULT 1,
   status TEXT CHECK (status IN ('pending', 'approved', 'rejected')) DEFAULT 'pending',
   comments TEXT,
