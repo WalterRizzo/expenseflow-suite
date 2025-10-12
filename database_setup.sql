@@ -14,6 +14,12 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Drop existing tables to avoid schema conflicts
+DROP TABLE IF EXISTS public.expense_approvals CASCADE;
+DROP TABLE IF EXISTS public.expenses CASCADE;
+DROP TABLE IF EXISTS public.user_roles CASCADE;
+DROP TABLE IF EXISTS public.profiles CASCADE;
+
 -- Create user_roles table (secure role management)
 CREATE TABLE IF NOT EXISTS public.user_roles (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
