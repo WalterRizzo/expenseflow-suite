@@ -20,10 +20,8 @@ import {
   AlertTriangle
 } from "lucide-react";
 import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
 
 const Header = () => {
-  const { profile, userRole, signOut } = useAuth();
   const [notifications] = useState([
     {
       id: 1,
@@ -53,16 +51,6 @@ const Header = () => {
 
   const unreadCount = notifications.filter(n => n.unread).length;
 
-  const getRoleLabel = (role: string) => {
-    const roleLabels = {
-      employee: 'Empleado',
-      supervisor: 'Supervisor', 
-      admin: 'Administrador',
-      finance: 'Finanzas'
-    };
-    return roleLabels[role as keyof typeof roleLabels] || role;
-  };
-
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'approval': return <FileText className="h-4 w-4 text-warning" />;
@@ -70,19 +58,6 @@ const Header = () => {
       case 'policy': return <AlertTriangle className="h-4 w-4 text-primary" />;
       default: return <Bell className="h-4 w-4" />;
     }
-  };
-
-  const handleSignOut = async () => {
-    await signOut();
-  };
-
-  const getUserInitials = (fullName: string) => {
-    return fullName
-      .split(' ')
-      .map(name => name.charAt(0))
-      .join('')
-      .toUpperCase()
-      .substring(0, 2);
   };
 
   return (
@@ -168,7 +143,7 @@ const Header = () => {
                 <Avatar className="h-9 w-9">
                   <AvatarImage src="/avatars/01.png" alt="Usuario" />
                   <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                    {profile?.full_name ? getUserInitials(profile.full_name) : 'U'}
+                    AM
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -176,18 +151,13 @@ const Header = () => {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{profile?.full_name}</p>
+                  <p className="text-sm font-medium leading-none">Ana Martínez</p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {profile?.email}
+                    supervisor@empresa.com
                   </p>
-                  <div className="flex gap-2 mt-1">
-                    <Badge variant="secondary" className="w-fit text-xs">
-                      {userRole && getRoleLabel(userRole)}
-                    </Badge>
-                    <Badge variant="outline" className="w-fit text-xs">
-                      {profile?.department}
-                    </Badge>
-                  </div>
+                  <Badge variant="secondary" className="w-fit text-xs mt-1">
+                    Supervisor
+                  </Badge>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
@@ -204,7 +174,7 @@ const Header = () => {
                 <span>Configuración</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive" onClick={handleSignOut}>
+              <DropdownMenuItem className="text-destructive">
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Cerrar Sesión</span>
               </DropdownMenuItem>
