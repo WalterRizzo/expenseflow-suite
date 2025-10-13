@@ -7,9 +7,11 @@ import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import ExpenseForm from "./pages/ExpenseForm";
 import ApprovalFlow from "./pages/ApprovalFlow";
+import Auth from "./pages/Auth";
 import Header from "./components/Header";
 import Navigation from "./components/Navigation";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -19,25 +21,35 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <div className="min-h-screen bg-background">
-          <Header />
-          <div className="flex">
-            <Navigation />
-            <main className="flex-1">
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/new-expense" element={<ExpenseForm />} />
-                <Route path="/expenses" element={<ExpenseForm />} />
-                <Route path="/approvals" element={<ApprovalFlow />} />
-                <Route path="/expense-form" element={<ExpenseForm />} />
-                <Route path="/approval-flow" element={<ApprovalFlow />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
-          </div>
-        </div>
+        <Routes>
+          <Route path="/auth" element={<Auth />} />
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute>
+                <div className="min-h-screen bg-background">
+                  <Header />
+                  <div className="flex">
+                    <Navigation />
+                    <main className="flex-1">
+                      <Routes>
+                        <Route path="/" element={<Dashboard />} />
+                        <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/new-expense" element={<ExpenseForm />} />
+                        <Route path="/expenses" element={<ExpenseForm />} />
+                        <Route path="/approvals" element={<ApprovalFlow />} />
+                        <Route path="/expense-form" element={<ExpenseForm />} />
+                        <Route path="/approval-flow" element={<ApprovalFlow />} />
+                        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </main>
+                  </div>
+                </div>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

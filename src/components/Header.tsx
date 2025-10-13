@@ -19,9 +19,18 @@ import {
   CheckCircle,
   AlertTriangle
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { Session } from "@supabase/supabase-js";
 
 const Header = () => {
+  const navigate = useNavigate();
+  const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<any>(null);
+  const [userRole, setUserRole] = useState<string>("");
+  
   const [notifications] = useState([
     {
       id: 1,
@@ -48,6 +57,56 @@ const Header = () => {
       unread: false
     }
   ]);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session?.user) {
+        loadUserData(session.user.id);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session?.user) {
+        setTimeout(() => loadUserData(session.user.id), 0);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const loadUserData = async (userId: string) => {
+    const { data: profileData } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
+    
+    if (profileData) {
+      setProfile(profileData);
+    }
+
+    const { data: roleData } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .single();
+    
+    if (roleData) {
+      setUserRole(roleData.role);
+    }
+  };
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error("Error al cerrar sesión");
+    } else {
+      toast.success("Sesión cerrada correctamente");
+      navigate("/auth");
+    }
+  };
 
   const unreadCount = notifications.filter(n => n.unread).length;
 
@@ -151,13 +210,17 @@ const Header = () => {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">Ana Martínez</p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    supervisor@empresa.com
+                  <p className="text-sm font-medium leading-none">
+                    {profile?.full_name || session?.user?.email || "Usuario"}
                   </p>
-                  <Badge variant="secondary" className="w-fit text-xs mt-1">
-                    Supervisor
-                  </Badge>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {session?.user?.email}
+                  </p>
+                  {userRole && (
+                    <Badge variant="secondary" className="w-fit text-xs mt-1 capitalize">
+                      {userRole}
+                    </Badge>
+                  )}
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
@@ -174,7 +237,7 @@ const Header = () => {
                 <span>Configuración</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive">
+              <DropdownMenuItem className="text-destructive" onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Cerrar Sesión</span>
               </DropdownMenuItem>
