@@ -1,11 +1,12 @@
 -- SUPABASE DATABASE SETUP
 -- Ejecuta este SQL en tu panel de Supabase (SQL Editor)
 
--- Drop existing tables to avoid schema conflicts
+-- Drop existing tables and types to avoid schema conflicts
 DROP TABLE IF EXISTS public.expense_approvals CASCADE;
 DROP TABLE IF EXISTS public.expenses CASCADE;
 DROP TABLE IF EXISTS public.user_roles CASCADE;
 DROP TABLE IF EXISTS public.profiles CASCADE;
+DROP TYPE IF EXISTS public.app_role CASCADE;
 
 -- Create enum for roles
 CREATE TYPE public.app_role AS ENUM ('employee', 'supervisor', 'admin', 'finance');
