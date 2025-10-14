@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import ExpenseForm from "./pages/ExpenseForm";
 import ApprovalFlow from "./pages/ApprovalFlow";
 import Auth from "./pages/Auth";
+import Team from "./pages/Team";
 import Header from "./components/Header";
 import Navigation from "./components/Navigation";
 import NotFound from "./pages/NotFound";
@@ -38,6 +39,7 @@ const App = () => (
                         <Route path="/new-expense" element={<ExpenseForm />} />
                         <Route path="/expenses" element={<ExpenseForm />} />
                         <Route path="/approvals" element={<ApprovalFlow />} />
+                        <Route path="/team" element={<Team />} />
                         <Route path="/expense-form" element={<ExpenseForm />} />
                         <Route path="/approval-flow" element={<ApprovalFlow />} />
                         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

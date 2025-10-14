@@ -13,6 +13,7 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [role, setRole] = useState<"user" | "supervisor">("user");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -47,7 +48,7 @@ const Auth = () => {
         if (error) throw error;
         toast.success("Sesión iniciada correctamente");
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { error, data } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -59,6 +60,22 @@ const Auth = () => {
         });
 
         if (error) throw error;
+
+        // Asignar rol al usuario
+        if (data.user) {
+          const { error: roleError } = await supabase
+            .from('user_roles')
+            .insert({
+              user_id: data.user.id,
+              role: role
+            });
+
+          if (roleError) {
+            console.error('Error asignando rol:', roleError);
+            toast.error("Usuario creado pero error asignando rol");
+          }
+        }
+        
         toast.success("Cuenta creada correctamente");
       }
     } catch (error: any) {
@@ -82,16 +99,31 @@ const Auth = () => {
         <CardContent>
           <form onSubmit={handleAuth} className="space-y-4">
             {!isLogin && (
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Nombre Completo</Label>
-                <Input
-                  id="fullName"
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required={!isLogin}
-                />
-              </div>
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Nombre Completo</Label>
+                  <Input
+                    id="fullName"
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required={!isLogin}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="role">Rol</Label>
+                  <select
+                    id="role"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value as "user" | "supervisor")}
+                    className="w-full px-3 py-2 border border-input bg-background rounded-md text-foreground"
+                    required={!isLogin}
+                  >
+                    <option value="user">Usuario de Carga</option>
+                    <option value="supervisor">Supervisor</option>
+                  </select>
+                </div>
+              </>
             )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>

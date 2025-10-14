@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      expenses: {
+        Row: {
+          amount: number
+          approved_at: string | null
+          approved_by: string | null
+          attachments: Json | null
+          category: Database["public"]["Enums"]["expense_category"]
+          created_at: string | null
+          description: string
+          expense_date: string
+          id: string
+          notes: string | null
+          priority: Database["public"]["Enums"]["expense_priority"]
+          project: string | null
+          rejected_at: string | null
+          rejected_by: string | null
+          rejection_reason: string | null
+          status: Database["public"]["Enums"]["expense_status"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          approved_at?: string | null
+          approved_by?: string | null
+          attachments?: Json | null
+          category: Database["public"]["Enums"]["expense_category"]
+          created_at?: string | null
+          description: string
+          expense_date: string
+          id?: string
+          notes?: string | null
+          priority?: Database["public"]["Enums"]["expense_priority"]
+          project?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          status?: Database["public"]["Enums"]["expense_status"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          attachments?: Json | null
+          category?: Database["public"]["Enums"]["expense_category"]
+          created_at?: string | null
+          description?: string
+          expense_date?: string
+          id?: string
+          notes?: string | null
+          priority?: Database["public"]["Enums"]["expense_priority"]
+          project?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          status?: Database["public"]["Enums"]["expense_status"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -73,7 +136,17 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "carga" | "supervisor" | "admin"
+      app_role: "carga" | "supervisor" | "admin" | "user"
+      expense_category:
+        | "meals"
+        | "travel"
+        | "transport"
+        | "supplies"
+        | "software"
+        | "training"
+        | "other"
+      expense_priority: "normal" | "high" | "urgent"
+      expense_status: "draft" | "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -201,7 +274,18 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["carga", "supervisor", "admin"],
+      app_role: ["carga", "supervisor", "admin", "user"],
+      expense_category: [
+        "meals",
+        "travel",
+        "transport",
+        "supplies",
+        "software",
+        "training",
+        "other",
+      ],
+      expense_priority: ["normal", "high", "urgent"],
+      expense_status: ["draft", "pending", "approved", "rejected"],
     },
   },
 } as const
