@@ -23,6 +23,9 @@ import {
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const ExpenseForm = () => {
   const [date, setDate] = useState<Date>();
@@ -83,12 +86,57 @@ const ExpenseForm = () => {
   const amountValue = parseFloat(formData.amount) || 0;
   const isOverLimit = selectedCategory && amountValue > selectedCategory.limit;
 
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
   const validateForm = () => {
     return formData.amount && 
            formData.description && 
            formData.category && 
            date && 
            files.length > 0;
+  };
+
+  const handleSubmit = async (status: 'pending' | 'draft') => {
+    if (!validateForm() && status === 'pending') {
+      toast({
+        title: "Error",
+        description: "Por favor completa todos los campos requeridos",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('expenses')
+      .insert({
+        user_id: user.id,
+        amount: parseFloat(formData.amount),
+        description: formData.description,
+        category: formData.category as any,
+        project: formData.project || null,
+        notes: formData.notes || null,
+        expense_date: date?.toISOString().split('T')[0] || '',
+        status: status as any,
+        attachments: files.map(f => ({ name: f.name, size: f.size, type: f.type })) as any
+      });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo guardar el gasto",
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Éxito",
+        description: status === 'pending' ? "Gasto enviado para aprobación" : "Borrador guardado"
+      });
+      navigate('/expenses');
+    }
   };
 
   return (
@@ -418,11 +466,16 @@ const ExpenseForm = () => {
                 className="w-full" 
                 disabled={!validateForm()}
                 size="lg"
+                onClick={() => handleSubmit('pending')}
               >
                 Enviar para Aprobación
               </Button>
               
-              <Button variant="outline" className="w-full">
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => handleSubmit('draft')}
+              >
                 Guardar Borrador
               </Button>
               

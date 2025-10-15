@@ -9,6 +9,10 @@ import ExpenseForm from "./pages/ExpenseForm";
 import ApprovalFlow from "./pages/ApprovalFlow";
 import Auth from "./pages/Auth";
 import Team from "./pages/Team";
+import Reports from "./pages/Reports";
+import Settings from "./pages/Settings";
+import Policies from "./pages/Policies";
+import Expenses from "./pages/Expenses";
 import Header from "./components/Header";
 import Navigation from "./components/Navigation";
 import NotFound from "./pages/NotFound";
@@ -37,11 +41,12 @@ const App = () => (
                         <Route path="/" element={<Dashboard />} />
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/new-expense" element={<ExpenseForm />} />
-                        <Route path="/expenses" element={<ExpenseForm />} />
+                        <Route path="/expenses" element={<Expenses />} />
                         <Route path="/approvals" element={<ApprovalFlow />} />
                         <Route path="/team" element={<Team />} />
-                        <Route path="/expense-form" element={<ExpenseForm />} />
-                        <Route path="/approval-flow" element={<ApprovalFlow />} />
+                        <Route path="/reports" element={<Reports />} />
+                        <Route path="/settings" element={<Settings />} />
+                        <Route path="/policies" element={<Policies />} />
                         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                         <Route path="*" element={<NotFound />} />
                       </Routes>

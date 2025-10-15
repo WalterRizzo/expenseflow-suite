@@ -15,9 +15,11 @@ import {
   Calendar
 } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("month");
+  const navigate = useNavigate();
 
   const metrics = [
     {
@@ -251,21 +253,37 @@ const Dashboard = () => {
                 <CardTitle>Acciones Rápidas</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button className="w-full justify-start" variant="outline">
+                <Button 
+                  className="w-full justify-start" 
+                  variant="outline"
+                  onClick={() => navigate('/new-expense')}
+                >
                   <FileText className="h-4 w-4 mr-2" />
                   Nuevo Gasto
                 </Button>
-                <Button className="w-full justify-start" variant="outline">
+                <Button 
+                  className="w-full justify-start" 
+                  variant="outline"
+                  onClick={() => navigate('/approvals')}
+                >
                   <Users className="h-4 w-4 mr-2" />
                   Revisar Pendientes
                 </Button>
-                <Button className="w-full justify-start" variant="outline">
+                <Button 
+                  className="w-full justify-start" 
+                  variant="outline"
+                  onClick={() => navigate('/reports')}
+                >
                   <TrendingUp className="h-4 w-4 mr-2" />
                   Generar Reporte
                 </Button>
-                <Button className="w-full justify-start" variant="outline">
+                <Button 
+                  className="w-full justify-start" 
+                  variant="outline"
+                  onClick={() => navigate('/expenses')}
+                >
                   <Calendar className="h-4 w-4 mr-2" />
-                  Ver Calendario
+                  Ver Mis Gastos
                 </Button>
               </CardContent>
             </Card>
