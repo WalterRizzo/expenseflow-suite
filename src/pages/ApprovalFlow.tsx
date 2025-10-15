@@ -100,29 +100,27 @@ const ApprovalFlow = () => {
     }
   };
 
-  const handleApprove = async (expenseId: string) => {
-    if (!currentUserId) return;
+ const handleApprove = async (expenseId: string) => {
+  if (!currentUserId) return;
+  try {
+    const { error } = await supabase
+      .from('expenses')
+      .update({
+        status: 'approved',
+        approved_by: currentUserId,
+        approved_at: new Date().toISOString(),
+      })
+      .eq('id', expenseId);
+    if (error) throw error;
+    toast.success("Gasto aprobado correctamente");
+    setActionReason("");
+    setSelectedExpense(null);
+    await fetchExpenses(); // <-- ¡Este await garantiza refresco inmediato y correcto!
+  } catch (error: any) {
+    toast.error("Error aprobando gasto: " + error.message);
+  }
+};
 
-    try {
-      const { error } = await supabase
-        .from('expenses')
-        .update({
-          status: 'approved',
-          approved_by: currentUserId,
-          approved_at: new Date().toISOString(),
-        })
-        .eq('id', expenseId);
-
-      if (error) throw error;
-
-      toast.success("Gasto aprobado correctamente");
-      setActionReason("");
-      setSelectedExpense(null);
-      fetchExpenses();
-    } catch (error: any) {
-      toast.error("Error aprobando gasto: " + error.message);
-    }
-  };
 
   const handleReject = async (expenseId: string) => {
     if (!currentUserId) return;
