@@ -150,7 +150,13 @@ const Expenses = () => {
                       <TableCell>{getStatusBadge(expense.status)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" onClick={() => {
+                            // Detalle simple del gasto por ahora
+                            toast({
+                              title: 'Detalle del gasto',
+                              description: `${expense.description} — ${getCategoryLabel(expense.category)} — $${expense.amount}`
+                            });
+                          }}>
                             <Eye className="h-4 w-4" />
                           </Button>
                           {expense.status === 'draft' && (

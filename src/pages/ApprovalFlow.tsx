@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { 
   CheckCircle, 
@@ -145,7 +146,7 @@ const ApprovalFlow = () => {
       toast.success("Gasto rechazado");
       setActionReason("");
       setSelectedExpense(null);
-      fetchExpenses();
+      await fetchExpenses();
     } catch (error: any) {
       toast.error("Error rechazando gasto: " + error.message);
     }
@@ -502,6 +503,45 @@ const ApprovalFlow = () => {
             )}
           </TabsContent>
         </Tabs>
+
+        {/* Grilla inferior de gastos */}
+        <section className="mt-10">
+          <Card className="border-0 shadow-md">
+            <CardHeader>
+              <CardTitle>Gastos (vista en grilla)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Fecha</TableHead>
+                      <TableHead>Empleado</TableHead>
+                      <TableHead>Descripción</TableHead>
+                      <TableHead>Categoría</TableHead>
+                      <TableHead>Importe</TableHead>
+                      <TableHead>Estado</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {expenses.map((e) => (
+                      <TableRow key={e.id}>
+                        <TableCell>{format(new Date(e.expense_date), "dd MMM yyyy", { locale: es })}</TableCell>
+                        <TableCell>{e.user_profile?.full_name || 'Usuario'}</TableCell>
+                        <TableCell className="max-w-[300px] truncate">{e.description}</TableCell>
+                        <TableCell>{getCategoryText(e.category)}</TableCell>
+                        <TableCell>€{Number(e.amount).toFixed(2)}</TableCell>
+                        <TableCell>
+                          <Badge variant={getStatusColor(e.status)}>{getStatusText(e.status)}</Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
       </div>
     </div>
   );

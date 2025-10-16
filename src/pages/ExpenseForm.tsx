@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { 
   Upload, 
@@ -30,6 +31,9 @@ import { useNavigate } from "react-router-dom";
 const ExpenseForm = () => {
   const [date, setDate] = useState<Date>();
   const [files, setFiles] = useState<File[]>([]);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewType, setPreviewType] = useState<'image' | 'pdf' | null>(null);
+  const [previewName, setPreviewName] = useState<string>("");
   const [dragOver, setDragOver] = useState(false);
   const [formData, setFormData] = useState({
     amount: "",
@@ -343,7 +347,13 @@ const ExpenseForm = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" onClick={() => {
+                            const url = URL.createObjectURL(file);
+                            setPreviewUrl(url);
+                            setPreviewName(file.name);
+                            const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+                            setPreviewType(isPdf ? 'pdf' : 'image');
+                          }}>
                             <Eye className="h-4 w-4" />
                           </Button>
                           <Button 
@@ -499,6 +509,28 @@ const ExpenseForm = () => {
           </div>
         </div>
       </div>
+
+      {/* Vista previa de archivos */}
+      <Dialog open={!!previewUrl} onOpenChange={(open) => {
+        if (!open && previewUrl) {
+          URL.revokeObjectURL(previewUrl);
+          setPreviewUrl(null);
+          setPreviewType(null);
+          setPreviewName("");
+        }
+      }}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Vista previa: {previewName}</DialogTitle>
+          </DialogHeader>
+          {previewType === 'image' && previewUrl && (
+            <img src={previewUrl} alt={`Vista previa ${previewName}`} className="w-full h-auto rounded-md" />
+          )}
+          {previewType === 'pdf' && previewUrl && (
+            <iframe src={previewUrl} className="w-full h-[70vh]" />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
