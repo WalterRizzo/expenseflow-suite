@@ -111,58 +111,6 @@ const Navigation = () => {
       active: location.pathname === "/settings"
     }
   ];
-    {
-      title: "Dashboard",
-      href: "/",
-      icon: Home,
-      active: location.pathname === "/"
-    },
-    {
-      title: "Mis Gastos",
-      href: "/expenses",
-      icon: FileText,
-      badge: "3",
-      active: location.pathname === "/expenses"
-    },
-    {
-      title: "Nuevo Gasto",
-      href: "/new-expense",
-      icon: FileText,
-      active: location.pathname === "/new-expense"
-    },
-    {
-      title: "Aprobaciones",
-      href: "/approvals",
-      icon: CheckSquare,
-      badge: "5",
-      badgeVariant: "warning" as const,
-      active: location.pathname === "/approvals"
-    },
-    {
-      title: "Reportes",
-      href: "/reports",
-      icon: PieChart,
-      active: location.pathname === "/reports"
-    },
-    {
-      title: "Equipo",
-      href: "/team",
-      icon: Users,
-      active: location.pathname === "/team"
-    },
-    {
-      title: "Políticas",
-      href: "/policies",
-      icon: Shield,
-      active: location.pathname === "/policies"
-    },
-    {
-      title: "Configuración",
-      href: "/settings",
-      icon: Settings,
-      active: location.pathname === "/settings"
-    }
-  ];
 
   return (
     <nav className="w-64 min-h-screen bg-card border-r border-border">
