@@ -13,11 +13,104 @@ import {
 } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Navigation = () => {
   const location = useLocation();
+  const [myExpensesCount, setMyExpensesCount] = useState<number>(0);
+  const [pendingApprovalsCount, setPendingApprovalsCount] = useState<number>(0);
+  const [userRole, setUserRole] = useState<string>("");
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Mi total de gastos
+      const { count: myCount } = await supabase
+        .from('expenses')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+      setMyExpensesCount(myCount || 0);
+
+      // Rol del usuario
+      const { data: roleRow } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const role = roleRow?.role || 'user';
+      setUserRole(role);
+
+      // Pendientes para aprobar: si es supervisor/admin todos; si no, solo propios
+      const query = supabase
+        .from('expenses')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending');
+      if (!(role === 'supervisor' || role === 'admin')) {
+        query.eq('user_id', user.id);
+      }
+      const { count: pendingCount } = await query;
+      setPendingApprovalsCount(pendingCount || 0);
+    };
+    load();
+  }, []);
+  // moved into hook above
 
   const navigationItems = [
+    {
+      title: "Dashboard",
+      href: "/",
+      icon: Home,
+      active: location.pathname === "/"
+    },
+    {
+      title: "Mis Gastos",
+      href: "/expenses",
+      icon: FileText,
+      badge: myExpensesCount ? String(myExpensesCount) : undefined,
+      active: location.pathname === "/expenses"
+    },
+    {
+      title: "Nuevo Gasto",
+      href: "/new-expense",
+      icon: FileText,
+      active: location.pathname === "/new-expense"
+    },
+    {
+      title: "Aprobaciones",
+      href: "/approvals",
+      icon: CheckSquare,
+      badge: pendingApprovalsCount ? String(pendingApprovalsCount) : undefined,
+      badgeVariant: "warning" as const,
+      active: location.pathname === "/approvals"
+    },
+    {
+      title: "Reportes",
+      href: "/reports",
+      icon: PieChart,
+      active: location.pathname === "/reports"
+    },
+    {
+      title: "Equipo",
+      href: "/team",
+      icon: Users,
+      active: location.pathname === "/team"
+    },
+    {
+      title: "Políticas",
+      href: "/policies",
+      icon: Shield,
+      active: location.pathname === "/policies"
+    },
+    {
+      title: "Configuración",
+      href: "/settings",
+      icon: Settings,
+      active: location.pathname === "/settings"
+    }
+  ];
     {
       title: "Dashboard",
       href: "/",

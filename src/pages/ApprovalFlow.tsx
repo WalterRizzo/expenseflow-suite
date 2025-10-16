@@ -54,6 +54,7 @@ const ApprovalFlow = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string>("");
 
   useEffect(() => {
     fetchExpenses();
@@ -64,6 +65,12 @@ const ApprovalFlow = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       setCurrentUserId(user.id);
+      const { data: roleRow } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      setUserRole(roleRow?.role || 'user');
     }
   };
 
@@ -504,11 +511,12 @@ const ApprovalFlow = () => {
           </TabsContent>
         </Tabs>
 
-        {/* Grilla inferior de gastos */}
+        {/* Grilla inferior solo visible para supervisores */}
+        {['supervisor','admin'].includes(userRole) && (
         <section className="mt-10">
           <Card className="border-0 shadow-md">
             <CardHeader>
-              <CardTitle>Gastos (vista en grilla)</CardTitle>
+              <CardTitle>Gastos (vista en grilla para supervisores)</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
@@ -542,6 +550,7 @@ const ApprovalFlow = () => {
             </CardContent>
           </Card>
         </section>
+        )}
       </div>
     </div>
   );

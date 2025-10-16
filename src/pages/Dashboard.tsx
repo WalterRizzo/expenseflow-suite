@@ -219,36 +219,9 @@ const Dashboard = () => {
             </Card>
           </div>
 
-          {/* Budget Overview */}
+          {/* Quick Actions (mantener, sin presupuesto) */}
           <div>
             <Card className="border-0 shadow-md">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <PieChart className="h-5 w-5 text-primary" />
-                  Presupuesto por Departamento
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {budgetData.map((dept, index) => (
-                  <div key={index} className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="font-medium text-foreground">{dept.department}</span>
-                      <span className="text-muted-foreground">
-                        ${dept.spent.toLocaleString()} / ${dept.budget.toLocaleString()}
-                      </span>
-                    </div>
-                    <Progress 
-                      value={dept.used} 
-                      className={`h-2 ${dept.used > 80 ? '[&>div]:bg-destructive' : dept.used > 60 ? '[&>div]:bg-warning' : '[&>div]:bg-success'}`}
-                    />
-                    <p className="text-xs text-muted-foreground">{dept.used}% utilizado</p>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Quick Actions */}
-            <Card className="border-0 shadow-md mt-6">
               <CardHeader>
                 <CardTitle>Acciones Rápidas</CardTitle>
               </CardHeader>
