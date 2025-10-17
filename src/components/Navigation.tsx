@@ -58,25 +58,28 @@ const Navigation = () => {
   }, []);
   // moved into hook above
 
-  const navigationItems = [
+  const allNavigationItems = [
     {
       title: "Dashboard",
       href: "/",
       icon: Home,
-      active: location.pathname === "/"
+      active: location.pathname === "/",
+      showForRoles: ['user', 'carga', 'supervisor', 'admin']
     },
     {
       title: "Mis Gastos",
       href: "/expenses",
       icon: FileText,
       badge: myExpensesCount ? String(myExpensesCount) : undefined,
-      active: location.pathname === "/expenses"
+      active: location.pathname === "/expenses",
+      showForRoles: ['user', 'carga', 'supervisor', 'admin']
     },
     {
       title: "Nuevo Gasto",
       href: "/new-expense",
       icon: FileText,
-      active: location.pathname === "/new-expense"
+      active: location.pathname === "/new-expense",
+      showForRoles: ['user', 'carga', 'supervisor', 'admin']
     },
     {
       title: "Aprobaciones",
@@ -84,33 +87,42 @@ const Navigation = () => {
       icon: CheckSquare,
       badge: pendingApprovalsCount ? String(pendingApprovalsCount) : undefined,
       badgeVariant: "warning" as const,
-      active: location.pathname === "/approvals"
+      active: location.pathname === "/approvals",
+      showForRoles: ['supervisor', 'admin']
     },
     {
       title: "Reportes",
       href: "/reports",
       icon: PieChart,
-      active: location.pathname === "/reports"
+      active: location.pathname === "/reports",
+      showForRoles: ['supervisor', 'admin']
     },
     {
       title: "Equipo",
       href: "/team",
       icon: Users,
-      active: location.pathname === "/team"
+      active: location.pathname === "/team",
+      showForRoles: ['user', 'carga', 'supervisor', 'admin']
     },
     {
       title: "Políticas",
       href: "/policies",
       icon: Shield,
-      active: location.pathname === "/policies"
+      active: location.pathname === "/policies",
+      showForRoles: ['user', 'carga', 'supervisor', 'admin']
     },
     {
       title: "Configuración",
       href: "/settings",
       icon: Settings,
-      active: location.pathname === "/settings"
+      active: location.pathname === "/settings",
+      showForRoles: ['user', 'carga', 'supervisor', 'admin']
     }
   ];
+
+  const navigationItems = allNavigationItems.filter(item => 
+    item.showForRoles.includes(userRole || 'user')
+  );
 
   return (
     <nav className="w-64 min-h-screen bg-card border-r border-border">

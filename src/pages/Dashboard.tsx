@@ -14,12 +14,30 @@ import {
   PieChart,
   Calendar
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const Dashboard = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("month");
+  const [userRole, setUserRole] = useState<string>("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const loadUserRole = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: roleRow } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      setUserRole(roleRow?.role || 'user');
+    };
+    loadUserRole();
+  }, []);
 
   const metrics = [
     {
@@ -263,21 +281,23 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Alerts */}
-        <Card className="border-0 shadow-md border-l-4 border-l-warning">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-warning" />
-              <div>
-                <h4 className="font-medium text-foreground">Atención Requerida</h4>
-                <p className="text-sm text-muted-foreground">
-                  Hay 5 gastos pendientes de aprobación desde hace más de 3 días. 
-                  El departamento de Ventas está cerca del límite presupuestario (75%).
-                </p>
+        {/* Alerts - Solo para supervisores y admins */}
+        {(userRole === 'supervisor' || userRole === 'admin') && (
+          <Card className="border-0 shadow-md border-l-4 border-l-warning">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="h-5 w-5 text-warning" />
+                <div>
+                  <h4 className="font-medium text-foreground">Atención Requerida</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Hay 5 gastos pendientes de aprobación desde hace más de 3 días. 
+                    El departamento de Ventas está cerca del límite presupuestario (75%).
+                  </p>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
