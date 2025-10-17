@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +35,7 @@ const ExpenseForm = () => {
   const [previewType, setPreviewType] = useState<'image' | 'pdf' | null>(null);
   const [previewName, setPreviewName] = useState<string>("");
   const [dragOver, setDragOver] = useState(false);
+  const [supervisorName, setSupervisorName] = useState<string>("No asignado");
   const [formData, setFormData] = useState({
     amount: "",
     description: "",
@@ -42,6 +43,32 @@ const ExpenseForm = () => {
     project: "",
     notes: ""
   });
+
+  useEffect(() => {
+    const loadSupervisor = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('supervisor_id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (profile?.supervisor_id) {
+        const { data: supervisor } = await supabase
+          .from('profiles')
+          .select('full_name, email')
+          .eq('id', profile.supervisor_id)
+          .maybeSingle();
+        
+        if (supervisor) {
+          setSupervisorName(supervisor.full_name || supervisor.email);
+        }
+      }
+    };
+    loadSupervisor();
+  }, []);
 
   const categories = [
     { value: "meals", label: "Comidas y Entretenimiento", limit: 500 },
@@ -431,7 +458,7 @@ const ExpenseForm = () => {
                     </div>
                     <div>
                       <p className="font-medium text-sm">Supervisor Directo</p>
-                      <p className="text-xs text-muted-foreground">Ana Martínez</p>
+                      <p className="text-xs text-muted-foreground">{supervisorName}</p>
                     </div>
                   </div>
                   

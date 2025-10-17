@@ -14,6 +14,7 @@ interface UserProfile {
   id: string;
   full_name: string;
   email: string;
+  supervisor_id: string | null;
 }
 
 interface UserRoleRow {
@@ -70,7 +71,7 @@ const Settings = () => {
     if (role === 'supervisor' || role === 'admin') {
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, full_name, email')
+        .select('id, full_name, email, supervisor_id')
         .order('full_name', { ascending: true });
       setAllProfiles(profiles || []);
 
@@ -106,6 +107,27 @@ const Settings = () => {
         title: "Éxito",
         description: "Perfil actualizado correctamente"
       });
+    }
+  };
+
+  const handleChangeSupervisor = async (userId: string, supervisorId: string) => {
+    const { error } = await supabase
+      .from('profiles')
+      .update({ supervisor_id: supervisorId === 'none' ? null : supervisorId })
+      .eq('id', userId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar el supervisor",
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Éxito",
+        description: "Supervisor actualizado correctamente"
+      });
+      loadProfile();
     }
   };
 
@@ -195,26 +217,50 @@ const Settings = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {allProfiles.map((p) => (
-                <div key={p.id} className="flex items-center justify-between p-3 border rounded-lg">
+                <div key={p.id} className="p-4 border rounded-lg space-y-3">
                   <div>
                     <p className="font-medium">{p.full_name || 'Sin nombre'}</p>
                     <p className="text-sm text-muted-foreground">{p.email}</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Rol:</span>
-                    <Select
-                      value={userRoles[p.id] || 'user'}
-                      onValueChange={(val) => handleChangeUserRole(p.id, val as 'admin' | 'supervisor' | 'user' | 'carga')}
-                    >
-                      <SelectTrigger className="w-36">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="user">Usuario</SelectItem>
-                        <SelectItem value="supervisor">Supervisor</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-2">
+                      <span className="text-sm text-muted-foreground">Rol:</span>
+                      <Select
+                        value={userRoles[p.id] || 'user'}
+                        onValueChange={(val) => handleChangeUserRole(p.id, val as 'admin' | 'supervisor' | 'user' | 'carga')}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="user">Usuario</SelectItem>
+                          <SelectItem value="carga">Carga</SelectItem>
+                          <SelectItem value="supervisor">Supervisor</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <span className="text-sm text-muted-foreground">Supervisor:</span>
+                      <Select
+                        value={p.supervisor_id || 'none'}
+                        onValueChange={(val) => handleChangeSupervisor(p.id, val)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sin asignar" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Sin asignar</SelectItem>
+                          {allProfiles
+                            .filter(sup => sup.id !== p.id && (userRoles[sup.id] === 'supervisor' || userRoles[sup.id] === 'admin'))
+                            .map(sup => (
+                              <SelectItem key={sup.id} value={sup.id}>
+                                {sup.full_name || sup.email}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
               ))}

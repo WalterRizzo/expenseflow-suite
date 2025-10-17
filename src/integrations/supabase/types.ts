@@ -83,6 +83,7 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
+          supervisor_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -90,6 +91,7 @@ export type Database = {
           email: string
           full_name?: string | null
           id: string
+          supervisor_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -97,9 +99,18 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          supervisor_id?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_supervisor_id_fkey"
+            columns: ["supervisor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
