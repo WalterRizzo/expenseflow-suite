@@ -272,18 +272,19 @@ const ApprovalFlow = () => {
             </div>
           )}
 
-          {showActions && expense.status === 'pending' && (
+          {showActions && expense.status === 'pending' && (userRole === 'supervisor' || userRole === 'admin') && (
             <div className="pt-4 border-t">
               {selectedExpense === expense.id ? (
                 <div className="space-y-3">
                   <div>
-                    <Label htmlFor="reason">Comentario/Motivo</Label>
+                    <Label htmlFor={`reason-${expense.id}`}>Comentario/Motivo</Label>
                     <Textarea
-                      id="reason"
+                      id={`reason-${expense.id}`}
                       placeholder="Añade un comentario o motivo para tu decisión..."
                       value={actionReason}
                       onChange={(e) => setActionReason(e.target.value)}
-                      rows={2}
+                      rows={3}
+                      className="resize-none"
                     />
                   </div>
                   <div className="flex gap-2">

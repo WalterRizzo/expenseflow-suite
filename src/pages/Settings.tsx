@@ -109,7 +109,7 @@ const Settings = () => {
     }
   };
 
-  const handleChangeUserRole = async (userId: string, newRole: string) => {
+  const handleChangeUserRole = async (userId: string, newRole: 'admin' | 'supervisor' | 'user' | 'carga') => {
     // Intentar actualizar o insertar el rol
     const { data: existingRole } = await supabase
       .from('user_roles')
@@ -121,13 +121,13 @@ const Settings = () => {
     if (existingRole) {
       const res = await supabase
         .from('user_roles')
-        .update({ role: newRole })
+        .update({ role: newRole as any })
         .eq('user_id', userId);
       error = res.error;
     } else {
       const res = await supabase
         .from('user_roles')
-        .insert({ user_id: userId, role: newRole });
+        .insert([{ user_id: userId, role: newRole as any }]);
       error = res.error;
     }
 
@@ -204,7 +204,7 @@ const Settings = () => {
                     <span className="text-sm text-muted-foreground">Rol:</span>
                     <Select
                       value={userRoles[p.id] || 'user'}
-                      onValueChange={(val) => handleChangeUserRole(p.id, val)}
+                      onValueChange={(val) => handleChangeUserRole(p.id, val as 'admin' | 'supervisor' | 'user' | 'carga')}
                     >
                       <SelectTrigger className="w-36">
                         <SelectValue />
