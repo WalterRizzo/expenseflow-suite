@@ -17,12 +17,15 @@ export type Database = {
       expenses: {
         Row: {
           amount: number
+          amount_in_pesos: number | null
           approved_at: string | null
           approved_by: string | null
           attachments: Json | null
           category: Database["public"]["Enums"]["expense_category"]
           created_at: string | null
+          currency: string
           description: string
+          exchange_rate: number
           expense_date: string
           id: string
           notes: string | null
@@ -37,12 +40,15 @@ export type Database = {
         }
         Insert: {
           amount: number
+          amount_in_pesos?: number | null
           approved_at?: string | null
           approved_by?: string | null
           attachments?: Json | null
           category: Database["public"]["Enums"]["expense_category"]
           created_at?: string | null
+          currency?: string
           description: string
+          exchange_rate?: number
           expense_date: string
           id?: string
           notes?: string | null
@@ -57,12 +63,15 @@ export type Database = {
         }
         Update: {
           amount?: number
+          amount_in_pesos?: number | null
           approved_at?: string | null
           approved_by?: string | null
           attachments?: Json | null
           category?: Database["public"]["Enums"]["expense_category"]
           created_at?: string | null
+          currency?: string
           description?: string
+          exchange_rate?: number
           expense_date?: string
           id?: string
           notes?: string | null
@@ -79,6 +88,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          balance: number
           created_at: string | null
           email: string
           full_name: string | null
@@ -87,6 +97,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          balance?: number
           created_at?: string | null
           email: string
           full_name?: string | null
@@ -95,6 +106,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          balance?: number
           created_at?: string | null
           email?: string
           full_name?: string | null

@@ -41,7 +41,9 @@ const ExpenseForm = () => {
     description: "",
     category: "",
     project: "",
-    notes: ""
+    notes: "",
+    currency: "ARS",
+    exchangeRate: "1.0"
   });
 
   useEffect(() => {
@@ -69,6 +71,13 @@ const ExpenseForm = () => {
     };
     loadSupervisor();
   }, []);
+
+  const currencies = [
+    { value: "ARS", label: "Peso Argentino (ARS)", rate: 1.0 },
+    { value: "USD", label: "Dólar (USD)", rate: 1000.0 },
+    { value: "EUR", label: "Euro (EUR)", rate: 1100.0 },
+    { value: "BRL", label: "Real (BRL)", rate: 200.0 }
+  ];
 
   const categories = [
     { value: "meals", label: "Comidas y Entretenimiento", limit: 500 },
@@ -141,18 +150,39 @@ const ExpenseForm = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
+    // Subir archivos a storage
+    const uploadedFiles = [];
+    for (const file of files) {
+      const filePath = `${user.id}/${Date.now()}_${file.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from('expense-attachments')
+        .upload(filePath, file);
+      
+      if (uploadError) {
+        toast({
+          title: "Error",
+          description: "No se pudo subir el archivo: " + file.name,
+          variant: "destructive"
+        });
+        return;
+      }
+      uploadedFiles.push({ name: file.name, path: filePath, size: file.size, type: file.type });
+    }
+
     const { error } = await supabase
       .from('expenses')
       .insert({
         user_id: user.id,
         amount: parseFloat(formData.amount),
+        currency: formData.currency,
+        exchange_rate: parseFloat(formData.exchangeRate),
         description: formData.description,
         category: formData.category as any,
         project: formData.project || null,
         notes: formData.notes || null,
         expense_date: date?.toISOString().split('T')[0] || '',
         status: status as any,
-        attachments: files.map(f => ({ name: f.name, size: f.size, type: f.type })) as any
+        attachments: uploadedFiles as any
       });
 
     if (error) {
@@ -205,6 +235,11 @@ const ExpenseForm = () => {
                       onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
                       className="text-lg font-medium"
                     />
+                    {formData.amount && (
+                      <p className="text-sm text-muted-foreground">
+                        En pesos: ${(parseFloat(formData.amount) * parseFloat(formData.exchangeRate)).toFixed(2)} ARS
+                      </p>
+                    )}
                     {isOverLimit && (
                       <div className="flex items-center gap-1 text-warning text-sm">
                         <AlertCircle className="h-4 w-4" />
@@ -214,34 +249,59 @@ const ExpenseForm = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="flex items-center gap-1">
-                      <CalendarIcon className="h-4 w-4" />
-                      Fecha del Gasto *
+                    <Label>
+                      Moneda *
                     </Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !date && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {date ? format(date, "PPP", { locale: es }) : "Seleccionar fecha"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={date}
-                          onSelect={setDate}
-                          initialFocus
-                          className="p-3 pointer-events-auto"
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <Select value={formData.currency} onValueChange={(value) => {
+                      const selectedCurrency = currencies.find(c => c.value === value);
+                      setFormData(prev => ({ 
+                        ...prev, 
+                        currency: value,
+                        exchangeRate: selectedCurrency?.rate.toString() || "1.0"
+                      }));
+                    }}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar moneda" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {currencies.map((currency) => (
+                          <SelectItem key={currency.value} value={currency.value}>
+                            {currency.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-1">
+                    <CalendarIcon className="h-4 w-4" />
+                    Fecha del Gasto *
+                  </Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !date && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {date ? format(date, "PPP", { locale: es }) : "Seleccionar fecha"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={date}
+                        onSelect={setDate}
+                        initialFocus
+                        className="p-3 pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
                 <div className="space-y-2">

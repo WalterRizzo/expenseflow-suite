@@ -222,7 +222,7 @@ const Settings = () => {
                     <p className="font-medium">{p.full_name || 'Sin nombre'}</p>
                     <p className="text-sm text-muted-foreground">{p.email}</p>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-3 gap-3">
                     <div className="flex flex-col gap-2">
                       <span className="text-sm text-muted-foreground">Rol:</span>
                       <Select
@@ -260,6 +260,59 @@ const Settings = () => {
                             ))}
                         </SelectContent>
                       </Select>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <span className="text-sm text-muted-foreground">Saldo (ARS):</span>
+                      <div className="flex gap-1">
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          id={`balance-${p.id}`}
+                          className="h-9"
+                        />
+                        <Button 
+                          size="sm"
+                          onClick={async () => {
+                            const input = document.getElementById(`balance-${p.id}`) as HTMLInputElement;
+                            const amount = parseFloat(input.value);
+                            if (!amount || amount <= 0) {
+                              toast({
+                                title: "Error",
+                                description: "Ingresa un monto válido",
+                                variant: "destructive"
+                              });
+                              return;
+                            }
+                            // Obtener balance actual y sumar
+                            const { data: currentProfile } = await supabase
+                              .from('profiles')
+                              .select('balance')
+                              .eq('id', p.id)
+                              .single();
+                            const newBalance = (currentProfile?.balance || 0) + amount;
+                            const { error: updateError } = await supabase
+                              .from('profiles')
+                              .update({ balance: newBalance })
+                              .eq('id', p.id);
+                            if (updateError) {
+                              toast({
+                                title: "Error",
+                                description: "No se pudo cargar el saldo",
+                                variant: "destructive"
+                              });
+                            } else {
+                              toast({
+                                title: "Éxito",
+                                description: `Saldo cargado: $${amount} ARS`
+                              });
+                              input.value = '';
+                              loadProfile();
+                            }
+                          }}
+                        >
+                          +
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>

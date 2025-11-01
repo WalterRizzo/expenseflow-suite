@@ -14,6 +14,8 @@ import { es } from "date-fns/locale";
 interface Expense {
   id: string;
   amount: number;
+  amount_in_pesos: number;
+  currency: string;
   description: string;
   category: string;
   expense_date: string;
@@ -52,6 +54,36 @@ const Expenses = () => {
       setExpenses(data || []);
     }
     setLoading(false);
+  };
+
+  const handleDelete = async (expenseId: string, status: string) => {
+    if (status === 'approved' || status === 'rejected') {
+      toast({
+        title: "No permitido",
+        description: "No se pueden borrar gastos aprobados o rechazados",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const { error } = await supabase
+      .from('expenses')
+      .delete()
+      .eq('id', expenseId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo eliminar el gasto",
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Éxito",
+        description: "Gasto eliminado correctamente"
+      });
+      loadExpenses();
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -133,7 +165,8 @@ const Expenses = () => {
                     <TableHead>Fecha</TableHead>
                     <TableHead>Descripción</TableHead>
                     <TableHead>Categoría</TableHead>
-                    <TableHead>Importe</TableHead>
+                    <TableHead>Importe Original</TableHead>
+                    <TableHead>Importe (ARS)</TableHead>
                     <TableHead>Estado</TableHead>
                     <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
@@ -146,25 +179,29 @@ const Expenses = () => {
                       </TableCell>
                       <TableCell className="font-medium">{expense.description}</TableCell>
                       <TableCell>{getCategoryLabel(expense.category)}</TableCell>
-                      <TableCell className="font-semibold">${expense.amount}</TableCell>
+                      <TableCell className="font-semibold">{expense.amount} {expense.currency}</TableCell>
+                      <TableCell className="font-semibold text-primary">${expense.amount_in_pesos?.toFixed(2)} ARS</TableCell>
                       <TableCell>{getStatusBadge(expense.status)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button variant="ghost" size="sm" onClick={() => {
-                            // Detalle simple del gasto por ahora
                             toast({
                               title: 'Detalle del gasto',
-                              description: `${expense.description} — ${getCategoryLabel(expense.category)} — $${expense.amount}`
+                              description: `${expense.description} — ${getCategoryLabel(expense.category)} — $${expense.amount_in_pesos?.toFixed(2)} ARS`
                             });
                           }}>
                             <Eye className="h-4 w-4" />
                           </Button>
-                          {expense.status === 'draft' && (
+                          {(expense.status === 'draft' || expense.status === 'pending') && (
                             <>
                               <Button variant="ghost" size="sm">
                                 <Edit className="h-4 w-4" />
                               </Button>
-                              <Button variant="ghost" size="sm">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleDelete(expense.id, expense.status)}
+                              >
                                 <Trash className="h-4 w-4" />
                               </Button>
                             </>
